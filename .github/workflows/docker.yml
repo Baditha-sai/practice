@@ -1,4 +1,4 @@
-name: Docker Build and Scan
+name: Docker Build, Trivy and CodeQL Scan
 
 on:
   push:
@@ -6,19 +6,48 @@ on:
       - main
       - master
 
+permissions:
+  contents: read
+  security-events: write
+  actions: read
+
 jobs:
-  docker:
+  trivy:
+    name: Docker Build & Trivy Scan
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
       - name: Build Docker Image
-        run: docker build vulnerable-app .
+        run: docker build -t vulnerable-app .
 
       - name: Scan Docker Image
         uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: vulnerable-app
           format: table
-          exit-code: 0
+          severity: CRITICAL,HIGH,MEDIUM
+          exit-code: '0'
+
+  codeql:
+    name: CodeQL Analysis
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: python
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Analyze Code
+        uses: github/codeql-action/analyze@v3
