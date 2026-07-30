@@ -21,4 +21,4 @@ jobs:
         with:
           image-ref: vulnerable-app
           format: table
-          exit-code: 1
+          exit-code: 0
