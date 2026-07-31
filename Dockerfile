@@ -13,3 +13,5 @@ RUN pip3 install -r requirements.txt
 
 # Runs as root (not recommended)
 CMD ["python3", "app.py"]
+
+RUN pwd
